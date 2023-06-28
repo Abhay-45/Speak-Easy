@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactAudioPlayer from 'react-audio-player';
 import { Button } from "reactstrap";
-import PropTypes from "prop-types";
 
 function UploadAudioPage() {
     const [file, setFile] = React.useState(null)
@@ -14,14 +13,14 @@ function UploadAudioPage() {
         let inputFile = e.target.files[0];
 
         fileReader.onloadend = (e) => {
-            window.sessionStorage.setItem("input_audio", e.target.result.substr(23));
+            window.sessionStorage.setItem("input_audio", e.target.result.substr());
+            console.log(e.target.result)
             setFile(inputFile);
             setAudioPreviewUrl(fileReader.result);
 
         };
-        if (file) {
-            fileReader.readAsDataURL(file);
-
+        if (inputFile) {
+            fileReader.readAsDataURL(inputFile);
         }
     }
 
@@ -39,16 +38,9 @@ function UploadAudioPage() {
     return (
         <div className='fileinput text-center'>
             <h1>Upload Audio</h1>
-            <input type="file" onChange={handleFileChange} ref={fileInput} />
-            <ReactAudioPlayer src={audioPreviewUrl} autoPlay controls />
-            <div
-                className={
-                    "fileinput-new thumbnail img-raised"
-                }
-            >
-
-
-            </div>
+            <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }}/>
+            <ReactAudioPlayer src={audioPreviewUrl} autoPlay={false} controls />
+           
             <div>
                 {file === null ? (
                     <Button className="btn-round" color="secondary" onClick={handleClick}>
