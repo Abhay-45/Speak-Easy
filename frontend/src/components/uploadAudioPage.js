@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactAudioPlayer from 'react-audio-player';
-import { Button } from "reactstrap";
+import { Button, Container } from "reactstrap";
 
 function UploadAudioPage() {
     const [file, setFile] = React.useState(null)
@@ -12,16 +12,16 @@ function UploadAudioPage() {
         let fileReader = new FileReader();
         let inputFile = e.target.files[0];
 
-        fileReader.onloadend = (e) => {
-            window.sessionStorage.setItem("input_audio", e.target.result.substr());
-            console.log(e.target.result)
-            setFile(inputFile);
-            setAudioPreviewUrl(fileReader.result);
-
-        };
         if (inputFile) {
+            setFile(inputFile);
             fileReader.readAsDataURL(inputFile);
         }
+
+        fileReader.onloadend = () => {
+            setAudioPreviewUrl(fileReader.result);
+            console.log(fileReader.result)
+            window.sessionStorage.setItem("input_audio", fileReader.result.substr(23));
+        };
     }
 
     const handleClick = () => {
@@ -35,29 +35,55 @@ function UploadAudioPage() {
         window.location.reload(false);
     };
 
+    const handleProcess = () => {
+        fetch('http://127.0.0.1:5000/audioProcessing', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                audio: window.sessionStorage.getItem("input_audio")
+            })
+        })
+            .then((Response) => Response.json())
+            .then((Result) => {
+                // Handle the response from the server
+                console.log(Result)
+            });
+
+    }
+
     return (
         <div className='fileinput text-center'>
             <h1>Upload Audio</h1>
-            <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }}/>
+            <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }} />
             <ReactAudioPlayer src={audioPreviewUrl} autoPlay={false} controls />
-           
-            <div>
+
+            <Container>
                 {file === null ? (
                     <Button className="btn-round" color="secondary" onClick={handleClick}>
                         {"Select file"}
                     </Button>
                 ) : (
                     <span>
-                        <Button className="btn-round" color="default" onClick={handleClick}>
+                        <Button className="btn-round" color="secondary" onClick={handleClick} style={{ marginRight: "20px" }}>
                             Change
                         </Button>
-                        {/* {props.avatar ? <br /> : null} */}
                         <Button color="danger" className="btn-round" onClick={handleRemove}>
                             <i className="fa fa-times" /> Remove
                         </Button>
                     </span>
                 )}
-            </div>
+            </Container>
+            <Container>
+                {file !== null && (
+                    <Button className="btn-round" color="primary" onClick={handleProcess} style={{ marginTop: "50px" }}>
+                        Process
+                    </Button>
+                )}
+            </Container>
+
         </div>
     )
 }
