@@ -19,3 +19,10 @@ Windows (Power Shell)
 1. $env:FLASK_APP = "server"
 2. flask run
 
+
+
+Things to analyse:
+- Pronounciation - how well can we interpret what they are saying (i.e confidence)
+- Pace - compare pace with normal/average (i.e too slow, to fast)
+- Quality of Language - i.e (grammar, word choice etc.)
+- Fluency (using python dub etc)
