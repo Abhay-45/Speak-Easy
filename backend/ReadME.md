@@ -1,6 +1,7 @@
 Libraries used in backend
 1. Flask
 2. flask-cors
+3. ffmpeg (download in local system)
 
 
 
