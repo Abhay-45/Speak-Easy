@@ -3,6 +3,8 @@ import json
 import base64
 import os
 import io
+from gingerit.gingerit import GingerIt
+import string
 
 relative_path = "Credentials/googleCloudCredentials.json"
 
@@ -30,6 +32,56 @@ def transcribe_audio(file):
 
     return response
 
+def getPace(data,words):
+    lastResult = data[len(data) - 1]
+    totalTime = lastResult.result_end_time.seconds
+    return len(words)/totalTime
+    
+
+def getConfidence(data):
+    numberOfResults = len(data)
+    totalConfidence = 0
+    for result in data:
+        confidence = result.alternatives[0].confidence
+        totalConfidence = totalConfidence + confidence
+    averageConfidence = round(((totalConfidence/numberOfResults) * 100))
+    return averageConfidence
+
+def getText(data):
+    words = []
+    for result in data:
+        sentence = result.alternatives[0].transcript
+        words.extend(sentence.split())
+    text = " ".join(words)
+    return text, words
+
+def getCorrectText(text):
+    parser = GingerIt()
+    result = parser.parse(text)
+    corrected_sentence = result['result']
+    errors = len(result['corrections'])
+    return corrected_sentence, errors
+
+def removePunctionation(corrected_sentence, errors):
+    words = []
+    realErrors = errors
+    for letter in corrected_sentence:
+        if letter in string.punctuation:
+            realErrors = realErrors - 1
+        else:
+            words.append(letter)
+    if realErrors < 0:
+        realErrors = 0
+
+    corrected_sentence = "".join(words)
+    return corrected_sentence, realErrors
+
+    
+
+
+
+
+        
 def audioProcess(data):
     file = open("audio.mp3", "wb")
     byte_string = bytes(data, 'utf-8')
@@ -38,7 +90,19 @@ def audioProcess(data):
     os.system("ffmpeg -i audio.mp3 audio.wav")
     os.system("ffmpeg -y  -i audio.wav  -acodec pcm_s16le -f s16le -ac 1 -ar 16000 audio.raw")
     transcribed_audio = transcribe_audio("audio.raw")
-    print("Transcribed Audio:   ", transcribed_audio.results[0].alternatives[0].transcript)
+    text, words = getText(transcribed_audio.results)
+    confidence = getConfidence(transcribed_audio.results)
+    pace = getPace(transcribed_audio.results, words)
+    corrected_sentence, errors = getCorrectText(text)
+    corrected_sentence, errors = removePunctionation(corrected_sentence,errors)
+    fillers = len(transcribed_audio.results) - 1
+    print("Transcribed Auto", transcribed_audio)
+    print("Original Text:   ", text)
+    print("Confidence:   ", confidence)
+    print("Pace   ", pace)
+    print("Corrected Sentence:   ", corrected_sentence)
+    print("Errors:   ", errors)
+
 
 
 @app.route('/audioProcessing', methods = ['GET', 'POST'])
