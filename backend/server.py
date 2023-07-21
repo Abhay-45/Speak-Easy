@@ -5,13 +5,17 @@ import os
 import io
 from gingerit.gingerit import GingerIt
 import string
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+from google.cloud import texttospeech_v1
 
 relative_path = "Credentials/googleCloudCredentials.json"
 
 from google.cloud import speech
 
 app = Flask(__name__)
-client = speech.SpeechClient.from_service_account_json(relative_path)
+speechclient = speech.SpeechClient.from_service_account_json(relative_path)
+textclient = texttospeech_v1.TextToSpeechClient.from_service_account_json(relative_path)
 
 from flask_cors import CORS
 CORS(app)
@@ -28,9 +32,30 @@ def transcribe_audio(file):
         language_code="en-US",
     )
 
-    response = client.recognize(config=config, audio=audio)
+    response = speechclient.recognize(config=config, audio=audio)
 
     return response
+
+def getAudioFromText(text):
+    synthesisInput = texttospeech_v1.SynthesisInput(text = text)
+
+    voice = texttospeech_v1.VoiceSelectionParams(
+        language_code = "en-US",
+        ssml_gender = texttospeech_v1.SsmlVoiceGender.NEUTRAL
+    )
+
+    audio_config = texttospeech_v1.AudioConfig(
+        audio_encoding = texttospeech_v1.AudioEncoding.MP3
+    )
+
+    response = textclient.synthesize_speech(
+        input = synthesisInput,
+        voice = voice,
+        audio_config=audio_config
+    )
+
+    with open("output.mp3","wb") as out:
+        out.write(response.audio_content)
 
 def getPace(data,words):
     lastResult = data[len(data) - 1]
@@ -75,13 +100,7 @@ def removePunctionation(corrected_sentence, errors):
 
     corrected_sentence = "".join(words)
     return corrected_sentence, realErrors
-
-    
-
-
-
-
-        
+            
 def audioProcess(data):
     file = open("audio.mp3", "wb")
     byte_string = bytes(data, 'utf-8')
@@ -95,14 +114,19 @@ def audioProcess(data):
     pace = getPace(transcribed_audio.results, words)
     corrected_sentence, errors = getCorrectText(text)
     corrected_sentence, errors = removePunctionation(corrected_sentence,errors)
-    fillers = len(transcribed_audio.results) - 1
+    long_pauses = len(transcribed_audio.results) - 1
+    getAudioFromText(corrected_sentence)
     print("Transcribed Auto", transcribed_audio)
     print("Original Text:   ", text)
     print("Confidence:   ", confidence)
     print("Pace   ", pace)
     print("Corrected Sentence:   ", corrected_sentence)
     print("Errors:   ", errors)
+    print("Long Pauses: ", long_pauses)
 
+    ##Removing all temp files at the end
+    os.remove("audio.wav")
+    os.remove("audio.raw")
 
 
 @app.route('/audioProcessing', methods = ['GET', 'POST'])
@@ -110,7 +134,6 @@ def audio_endpoint():
     data = request.json
     audioProcess(data['audio'])
     return data
-
 
 if __name__ == '__main__':
     app.run()
