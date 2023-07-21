@@ -124,16 +124,30 @@ def audioProcess(data):
     print("Errors:   ", errors)
     print("Long Pauses: ", long_pauses)
 
+    output_audio_url = str(base64.b64encode(open("output.mp3", "rb").read()))
+    output_audio_url = output_audio_url[2: len(output_audio_url) -1]
+    print("AudioUrl:  ",output_audio_url)
+
     ##Removing all temp files at the end
     os.remove("audio.wav")
     os.remove("audio.raw")
+
+    return {"status": "Success", 
+            "original_text": text, 
+            "corrected_text": corrected_sentence, 
+            "confidence": confidence,
+            "pace": pace,
+            "errors": errors,
+            "long_pauses": long_pauses,
+            "output_audio": output_audio_url
+            }
 
 
 @app.route('/audioProcessing', methods = ['GET', 'POST'])
 def audio_endpoint(): 
     data = request.json
-    audioProcess(data['audio'])
-    return data
+    result = audioProcess(data['audio'])
+    return result
 
 if __name__ == '__main__':
     app.run()

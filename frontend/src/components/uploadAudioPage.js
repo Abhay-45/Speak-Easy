@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import ReactAudioPlayer from 'react-audio-player';
 import { Button, Container } from "reactstrap";
 
@@ -6,6 +6,9 @@ function UploadAudioPage() {
     const [file, setFile] = React.useState(null)
     const fileInput = React.useRef();
     const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
+    const [outPutUrl, setOutPutUrl] = React.useState(null)
+    const [pace, setpace] = React.useState("")
+    const [confidence, setConfidence] = useState()
 
     const handleFileChange = (e) => {
         e.preventDefault();
@@ -49,8 +52,16 @@ function UploadAudioPage() {
             .then((Response) => Response.json())
             .then((Result) => {
                 // Handle the response from the server
-                console.log(Result)
+                outPutFormating(Result)
+                
             });
+
+    }
+
+    const outPutFormating = (Result) => {
+        console.log(Result)
+        setOutPutUrl("data:audio/mpeg;base64," + Result.output_audio)
+        setpace(Result['pace'])
 
     }
 
@@ -81,6 +92,14 @@ function UploadAudioPage() {
                     <Button className="btn-round" color="primary" onClick={handleProcess} style={{ marginTop: "50px" }}>
                         Process
                     </Button>
+                )}
+            </Container>
+            <Container>
+                {outPutUrl != null && (
+                    <div className="mt-4">
+                        <ReactAudioPlayer src={outPutUrl} autoPlay={false} controls />
+                    </div>
+                    
                 )}
             </Container>
 
