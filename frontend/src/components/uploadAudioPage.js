@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import ReactAudioPlayer from 'react-audio-player';
 import { Button, Container } from "reactstrap";
+import COLORS from '../constants/theme';
 
-function UploadAudioPage() {
+function UploadAudioPage({outPutAudioUrl, setOutPutAudioUrl}) {
     const [file, setFile] = React.useState(null)
     const fileInput = React.useRef();
     const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
-    const [outPutUrl, setOutPutUrl] = React.useState(null)
+    // const [outPutUrl, setOutPutUrl] = React.useState(null)
     const [pace, setpace] = React.useState("")
     const [confidence, setConfidence] = useState()
 
@@ -60,20 +61,20 @@ function UploadAudioPage() {
 
     const outPutFormating = (Result) => {
         console.log(Result)
-        setOutPutUrl("data:audio/mpeg;base64," + Result.output_audio)
+        setOutPutAudioUrl("data:audio/mpeg;base64," + Result.output_audio)
         setpace(Result['pace'])
 
     }
 
     return (
-        <div className='fileinput text-center'>
+        <div className='fileinput text-center p-4' style={{backgroundColor:COLORS.LIGHTBLUE}}>
             <h1>Upload Audio</h1>
             <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }} />
             <ReactAudioPlayer src={audioPreviewUrl} autoPlay={false} controls />
 
             <Container>
                 {file === null ? (
-                    <Button className="btn-round" color="secondary" onClick={handleClick}>
+                    <Button className="btn-round m-2" color="secondary" onClick={handleClick}>
                         {"Select file"}
                     </Button>
                 ) : (
@@ -94,14 +95,7 @@ function UploadAudioPage() {
                     </Button>
                 )}
             </Container>
-            <Container>
-                {outPutUrl != null && (
-                    <div className="mt-4">
-                        <ReactAudioPlayer src={outPutUrl} autoPlay={false} controls />
-                    </div>
-                    
-                )}
-            </Container>
+            
 
         </div>
     )
