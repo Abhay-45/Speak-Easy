@@ -4,7 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, In
 import COLORS from '../constants/theme';
 import ReactAudioPlayer from 'react-audio-player';
 
-const OutPut = ({outPutAudioUrl}) => {
+const OutPut = ({ outPutAudioUrl }) => {
     const [modal, setModal] = useState(false);
     const [genderOption, setGenderOption] = useState("NEUTRAL");
     const [accentOption, setAccentOption] = useState("en-US")
@@ -28,15 +28,17 @@ const OutPut = ({outPutAudioUrl}) => {
     const toggle = () => setModal(!modal);
 
     return (
-        <div className="mt-5 p-4" style={{backgroundColor: COLORS.GRAY4}}>
-            <h3 className='pb-'>Output</h3>
+        <div className="" style={{ backgroundColor: COLORS.GRAY1, padding: 50 }}>
+            <h1 className='' style={{ paddingBottom: 20 }}>Output</h1>
 
             <Button color="danger" onClick={toggle}>
                 Output Audio Settings
             </Button>
             <Modal isOpen={modal} toggle={toggle} centered={true}>
-                <ModalHeader toggle={toggle}>Audio Settings</ModalHeader>
-                <ModalBody>
+                <ModalHeader toggle={toggle}>
+                    Audio Settings
+                </ModalHeader>
+                <ModalBody style={{ paddingLeft: 30, paddingRight: 30 }}>
                     <Form>
                         <FormGroup
                             row={false}
@@ -85,7 +87,7 @@ const OutPut = ({outPutAudioUrl}) => {
                                 </FormGroup>
                             </Col>
                         </FormGroup>
-                        
+
                         {/* Accent */}
                         <FormGroup>
                             <Label for="exampleSelect">
@@ -120,7 +122,7 @@ const OutPut = ({outPutAudioUrl}) => {
                     <Button style={{ backgroundColor: '#52ab98' }} onClick={handleSaveClick}>
                         Save
                     </Button>
-                    <Button color="secondary" onClick={toggle}>
+                    <Button color="danger" onClick={toggle}>
                         Cancel
                     </Button>
                 </ModalFooter>
@@ -128,10 +130,10 @@ const OutPut = ({outPutAudioUrl}) => {
 
             <Container>
                 {outPutAudioUrl != null && (
-                    <div className="mt-4">
-                        <ReactAudioPlayer style={{color:COLORS.PRIMARY}}src={outPutAudioUrl} autoPlay={false} controls />
+                    <div className="mt-4" style={{ border: "20px", borderColor: COLORS.PRIMARY }}>
+                        <ReactAudioPlayer style={{ border: 5, borderColor: COLORS.PRIMARY }} src={outPutAudioUrl} autoPlay={false} controls />
                     </div>
-                    
+
                 )}
             </Container>
         </div>

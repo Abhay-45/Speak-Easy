@@ -1,9 +1,9 @@
 import './App.css';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import UploadAudioPage from './components/uploadAudioPage';
 import Analysis from './components/analysis';
 import OutPut from './components/outPut';
-
+import NavBar from './components/navbar';
 
 
 function App() {
@@ -11,16 +11,23 @@ function App() {
 
   return (
     <div className="App">
-      <UploadAudioPage 
-      outPutAudioUrl={outPutAudioUrl}
-      setOutPutAudioUrl={setOutPutAudioUrl}
-      />
-      <OutPut
-      outPutAudioUrl={outPutAudioUrl}
-      />
-      
+      <div>
+        <NavBar />
+      </div>
+      <div style={{ paddingTop: 70 }}>
+        <UploadAudioPage
+          outPutAudioUrl={outPutAudioUrl}
+          setOutPutAudioUrl={setOutPutAudioUrl}
+        />
+        <OutPut
+          outPutAudioUrl={outPutAudioUrl}
+        />
+        <Analysis></Analysis>
+      </div>
+
+
     </div>
-    
+
   );
 }
 

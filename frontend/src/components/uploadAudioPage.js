@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactAudioPlayer from 'react-audio-player';
-import { Button, Container } from "reactstrap";
+import { Button, Container, ButtonGroup } from "reactstrap";
 import COLORS from '../constants/theme';
 
-function UploadAudioPage({outPutAudioUrl, setOutPutAudioUrl}) {
+function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl }) {
     const [file, setFile] = React.useState(null)
     const fileInput = React.useRef();
     const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
@@ -54,7 +54,7 @@ function UploadAudioPage({outPutAudioUrl, setOutPutAudioUrl}) {
             .then((Result) => {
                 // Handle the response from the server
                 outPutFormating(Result)
-                
+
             });
 
     }
@@ -67,35 +67,44 @@ function UploadAudioPage({outPutAudioUrl, setOutPutAudioUrl}) {
     }
 
     return (
-        <div className='fileinput text-center p-4' style={{backgroundColor:COLORS.LIGHTBLUE}}>
-            <h1>Upload Audio</h1>
-            <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }} />
-            <ReactAudioPlayer src={audioPreviewUrl} autoPlay={false} controls />
-
+        <div className='fileinput text-center' style={{ padding: 50 }}>
+            <div style={{ display: "flex", flexDirection: 'column', justifyContent : 'center', alignItems : 'center' }}>
+                <h1 style={{ paddingBottom: 20 }}>Upload</h1>
+                <ButtonGroup style={{paddingBottom : 10, borderRadius: 10}}>
+                    <Button color='success' style={{width: 90}}>
+                        Upload
+                    </Button>
+                    <Button color="primary" style={{width: 90}} >
+                        Speak
+                    </Button>
+                </ButtonGroup>
+                <input type="file" onChange={handleFileChange} ref={fileInput} style={{ display: 'none' }} />
+                <ReactAudioPlayer src={audioPreviewUrl} autoPlay={false} controls style={{ margin: 20 }} />
+            </div>
             <Container>
                 {file === null ? (
-                    <Button className="btn-round m-2" color="secondary" onClick={handleClick}>
+                    <Button className="btn-round" color="secondary" onClick={handleClick} style={{marginTop: 10}}>
                         {"Select file"}
                     </Button>
                 ) : (
-                    <span>
-                        <Button className="btn-round" color="secondary" onClick={handleClick} style={{ marginRight: "20px" }}>
+                    <div style={{ padding: 20 }}>
+                        <Button className="btn-round" color="secondary" onClick={handleClick} style={{ marginRight: "40px" }}>
                             Change
                         </Button>
                         <Button color="danger" className="btn-round" onClick={handleRemove}>
                             <i className="fa fa-times" /> Remove
                         </Button>
-                    </span>
+                    </div>
                 )}
             </Container>
             <Container>
                 {file !== null && (
-                    <Button className="btn-round" color="primary" onClick={handleProcess} style={{ marginTop: "50px" }}>
+                    <Button className="btn-round" onClick={handleProcess} style={{ margin: "30px", backgroundColor: COLORS.TURQUOISE }}>
                         Process
                     </Button>
                 )}
             </Container>
-            
+
 
         </div>
     )

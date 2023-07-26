@@ -22,7 +22,7 @@ Windows (Power Shell)
 
 
 Things to analyse:
-- Pronounciation - how well can we interpret what they are saying (i.e confidence)
-- Pace - compare pace with normal/average (i.e too slow, to fast)
-- Quality of Language - i.e (grammar, word choice etc.)
+- Pronounciation - how well can we interpret what they are saying (i.e confidence) - Done
+- Pace - compare pace with normal/average (i.e too slow, to fast) - Done
+- Quality of Language - i.e (grammar, word choice etc.) - Done
 - Fluency (using python dub etc)
