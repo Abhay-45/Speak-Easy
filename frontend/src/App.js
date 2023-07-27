@@ -5,10 +5,16 @@ import Analysis from './components/analysis';
 import OutPut from './components/outPut';
 import NavBar from './components/navbar';
 import RecordAudio from './components/recordAudio';
+import RadioOptions from './components/radioOptions';
 
 
 function App() {
   const [outPutAudioUrl, setOutPutAudioUrl] = useState(null)
+  const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
+  const [file, setFile] = React.useState(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  
 
   return (
     <div className="App">
@@ -19,14 +25,20 @@ function App() {
         <UploadAudioPage
           outPutAudioUrl={outPutAudioUrl}
           setOutPutAudioUrl={setOutPutAudioUrl}
+          setAudioPreviewUrl={setAudioPreviewUrl}
+          audioPreviewUrl={audioPreviewUrl}
+          file={file}
+          setFile={setFile}
+          setIsProcessing={setIsProcessing}
         />
         <OutPut
           outPutAudioUrl={outPutAudioUrl}
+          isProcessing={isProcessing}
         />
         <Analysis></Analysis>
-        <RecordAudio></RecordAudio>
       </div>
-
+      
+      
 
     </div>
 

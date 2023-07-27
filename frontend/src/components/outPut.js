@@ -3,8 +3,9 @@ import output from '../constants/output'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label, Col, Container } from 'reactstrap';
 import COLORS from '../constants/theme';
 import ReactAudioPlayer from 'react-audio-player';
+import LoadingGif from '../constants/loading.gif'
 
-const OutPut = ({ outPutAudioUrl }) => {
+const OutPut = ({ outPutAudioUrl, isProcessing }) => {
     const [modal, setModal] = useState(false);
     const [genderOption, setGenderOption] = useState("NEUTRAL");
     const [accentOption, setAccentOption] = useState("en-US")
@@ -31,7 +32,8 @@ const OutPut = ({ outPutAudioUrl }) => {
         <div className="" style={{ backgroundColor: COLORS.GRAY1, padding: 50 }}>
             <h1 className='' style={{ paddingBottom: 20 }}>Output</h1>
 
-            <Button color="danger" onClick={toggle}>
+            <Button color="danger" size='lg' onClick={toggle} style={{paddingLeft: 30,
+                            paddingRight: 30 }}>
                 Output Audio Settings
             </Button>
             <Modal isOpen={modal} toggle={toggle} centered={true}>
@@ -129,9 +131,12 @@ const OutPut = ({ outPutAudioUrl }) => {
             </Modal>
 
             <Container>
+                {isProcessing && (
+                    <img src={LoadingGif} style = {{width:"7%"}}/>
+                )}
                 {outPutAudioUrl != null && (
-                    <div className="mt-4" style={{ border: "20px", borderColor: COLORS.PRIMARY }}>
-                        <ReactAudioPlayer style={{ border: 5, borderColor: COLORS.PRIMARY }} src={outPutAudioUrl} autoPlay={false} controls />
+                    <div className="mt-5" style={{ border: "20px", borderColor: COLORS.PRIMARY }}>
+                        <ReactAudioPlayer style={{ border: 5, borderColor: COLORS.PRIMARY, width: "30rem" }} src={outPutAudioUrl} autoPlay={false} controls />
                     </div>
 
                 )}
