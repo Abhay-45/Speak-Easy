@@ -32,8 +32,8 @@ const OutPut = ({ outPutAudioUrl, isProcessing }) => {
         <div className="" style={{ backgroundColor: COLORS.GRAY1, padding: 50 }}>
             <h1 className='' style={{ paddingBottom: 20 }}>Output</h1>
 
-            <Button color="danger" size='lg' onClick={toggle} style={{paddingLeft: 30,
-                            paddingRight: 30 }}>
+            <Button  size='lg'  onClick={toggle} style={{paddingLeft: 30,
+                                paddingRight: 30, backgroundColor: COLORS.PRIMARY, border: 0 }}>
                 Output Audio Settings
             </Button>
             <Modal isOpen={modal} toggle={toggle} centered={true}>
