@@ -4,6 +4,7 @@ import UploadAudioPage from './components/uploadAudioPage';
 import Analysis from './components/analysis';
 import OutPut from './components/outPut';
 import NavBar from './components/navbar';
+import RecordAudio from './components/recordAudio';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           outPutAudioUrl={outPutAudioUrl}
         />
         <Analysis></Analysis>
+        <RecordAudio></RecordAudio>
       </div>
 
 
