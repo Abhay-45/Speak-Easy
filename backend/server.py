@@ -20,7 +20,7 @@ textclient = texttospeech_v1.TextToSpeechClient.from_service_account_json(relati
 from flask_cors import CORS
 CORS(app)
 
-def transcribe_audio(file):
+def transcribe_audio(file, language):
     with io.open(file, "rb") as audio_file:
         content = audio_file.read()
 
@@ -29,19 +29,34 @@ def transcribe_audio(file):
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=16000,
-        language_code="en-US",
+        language_code=language,
     )
 
     response = speechclient.recognize(config=config, audio=audio)
 
     return response
 
-def getAudioFromText(text):
+def getVoiceFromGender(language, gender):
+    if language == "en-US":
+        if gender == "Female":
+            return "C"
+        else:
+            return "A"
+    else:
+        if gender == "Female":
+            return "A"
+        else:
+            return "B"
+
+        
+
+def getAudioFromText(text, language, gender):
+
     synthesisInput = texttospeech_v1.SynthesisInput(text = text)
 
     voice = texttospeech_v1.VoiceSelectionParams(
-        language_code = "en-US",
-        ssml_gender = texttospeech_v1.SsmlVoiceGender.NEUTRAL
+        language_code = language,
+        name = "en-IN-Standard-"+ getVoiceFromGender(language,gender)
     )
 
     audio_config = texttospeech_v1.AudioConfig(
@@ -60,7 +75,10 @@ def getAudioFromText(text):
 def getPace(data,words):
     lastResult = data[len(data) - 1]
     totalTime = lastResult.result_end_time.seconds
-    return len(words)/totalTime
+    if totalTime != 0:
+        return len(words)/totalTime
+    else:
+        return 0
     
 
 def getConfidence(data):
@@ -69,14 +87,19 @@ def getConfidence(data):
     for result in data:
         confidence = result.alternatives[0].confidence
         totalConfidence = totalConfidence + confidence
-    averageConfidence = round(((totalConfidence/numberOfResults) * 100))
-    return averageConfidence
+    if numberOfResults != 0:
+        averageConfidence = round(((totalConfidence/numberOfResults) * 100))
+        return averageConfidence
+    else:
+        return 0
 
 def getText(data):
     words = []
     for result in data:
         sentence = result.alternatives[0].transcript
         words.extend(sentence.split())
+    if len(words) > 0:
+        words[0] = words[0].capitalize()
     text = " ".join(words)
     return text, words
 
@@ -100,29 +123,37 @@ def removePunctionation(corrected_sentence, errors):
 
     corrected_sentence = "".join(words)
     return corrected_sentence, realErrors
+
+def getFillers():
+    final_audio = AudioSegment.from_wav("audio.wav")
+    dBFS = final_audio.dBFS
+    chunks = split_on_silence(final_audio,min_silence_len=500,silence_thresh=dBFS-16)
+    return len(chunks) - 1 
+                
             
-def audioProcess(data):
+            
+def audioProcess(data, inputLanguage, outputLanguage, gender):
     file = open("audio.mp3", "wb")
     byte_string = bytes(data, 'utf-8')
     file.write(base64.b64decode(data))
     print(file)
     os.system("ffmpeg -i audio.mp3 audio.wav")
     os.system("ffmpeg -y  -i audio.wav  -acodec pcm_s16le -f s16le -ac 1 -ar 16000 audio.raw")
-    transcribed_audio = transcribe_audio("audio.raw")
+    transcribed_audio = transcribe_audio("audio.raw", inputLanguage)
     text, words = getText(transcribed_audio.results)
     confidence = getConfidence(transcribed_audio.results)
     pace = getPace(transcribed_audio.results, words)
     corrected_sentence, errors = getCorrectText(text)
     corrected_sentence, errors = removePunctionation(corrected_sentence,errors)
-    long_pauses = len(transcribed_audio.results) - 1
-    getAudioFromText(corrected_sentence)
+    fillers = getFillers()
+    getAudioFromText(corrected_sentence, outputLanguage, gender)
     print("Transcribed Auto", transcribed_audio)
     print("Original Text:   ", text)
     print("Confidence:   ", confidence)
     print("Pace   ", pace)
     print("Corrected Sentence:   ", corrected_sentence)
     print("Errors:   ", errors)
-    print("Long Pauses: ", long_pauses)
+    print("Long Pauses: ", fillers)
 
     output_audio_url = str(base64.b64encode(open("output.mp3", "rb").read()))
     output_audio_url = output_audio_url[2: len(output_audio_url) -1]
@@ -138,7 +169,7 @@ def audioProcess(data):
             "confidence": confidence,
             "pace": pace,
             "errors": errors,
-            "long_pauses": long_pauses,
+            "fillers": fillers,
             "output_audio": output_audio_url
             }
 
@@ -146,7 +177,7 @@ def audioProcess(data):
 @app.route('/audioProcessing', methods = ['GET', 'POST'])
 def audio_endpoint(): 
     data = request.json
-    result = audioProcess(data['audio'])
+    result = audioProcess(data['audio'], data['inputLanguage'],data['outputLanguage'],data['gender'])
     return result
 
 if __name__ == '__main__':

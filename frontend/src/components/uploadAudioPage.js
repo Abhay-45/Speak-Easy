@@ -5,8 +5,36 @@ import COLORS from '../constants/theme';
 import RecordAudio from './recordAudio';
 import RadioOptions from './radioOptions';
 
+
 function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, setAudioPreviewUrl, file, setFile, setIsProcessing }) {
-    // const [file, setFile] = React.useState(null)
+
+    const transcribeLanguages = {
+        "English (Australia)": "en-AU",
+        "English (Canada)": "en-CA",
+        "English (Ghana)": "en-GH",
+        "English (Hong Kong)": "en-HK",
+        "English (India)": "en-IN",
+        "English (Ireland)": "en-IE",
+        "English (Kenya)":"en-KE",
+        "English (New Zealand)": "en-NZ",
+        "English (Nigeria)": "en-NG",
+        "English (Pakistan)": "en-PK",
+        "English (Philippines)": "en-PH",
+        "English (Singapore)": "en-SG",
+        "English (South Africa)": "en-ZA",
+        "English (Tanzania)": "en-TZ",
+        "English (United Kingdom)": "en-GB",
+        "English (United States": "en-US"
+    }
+
+    const outputLanguages = {
+        "English (Australia)": "en-AU",
+        "English (India)": "en-IN",
+        "English (United Kingdom)": "en-GB",
+        "English (United States": "en-US"
+    }
+
+    //const [file, setFile] = React.useState(null)
     const fileInput = React.useRef();
     // const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
     // const [outPutUrl, setOutPutUrl] = React.useState(null)
@@ -52,7 +80,10 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                audio: window.sessionStorage.getItem("input_audio")
+                audio: window.sessionStorage.getItem("input_audio"),
+                inputLanguage: "en-GB",
+                outputLanguage: "en-IN",
+                gender: "Male"
             })
         })
             .then((Response) => Response.json())
