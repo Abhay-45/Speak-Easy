@@ -38,12 +38,12 @@ def transcribe_audio(file, language):
 
 def getVoiceFromGender(language, gender):
     if language == "en-US":
-        if gender == "Female":
+        if gender == "FEMALE":
             return "C"
         else:
             return "A"
     else:
-        if gender == "Female":
+        if gender == "FEMALE":
             return "A"
         else:
             return "B"
@@ -56,7 +56,7 @@ def getAudioFromText(text, language, gender):
 
     voice = texttospeech_v1.VoiceSelectionParams(
         language_code = language,
-        name = "en-IN-Standard-"+ getVoiceFromGender(language,gender)
+        name = language + "-Standard-" + getVoiceFromGender(language,gender)
     )
 
     audio_config = texttospeech_v1.AudioConfig(
@@ -73,42 +73,44 @@ def getAudioFromText(text, language, gender):
         out.write(response.audio_content)
 
 def getPace(data,words):
-    lastResult = data[len(data) - 1]
-    totalTime = lastResult.result_end_time.seconds
-    if totalTime != 0:
-        return len(words)/totalTime
-    else:
-        return 0
+    if len(data) != 0:
+        lastResult = data[len(data) - 1]
+        totalTime = lastResult.result_end_time.seconds
+        return round(len(words)/totalTime)
+    return "NA"
     
 
 def getConfidence(data):
     numberOfResults = len(data)
-    totalConfidence = 0
-    for result in data:
-        confidence = result.alternatives[0].confidence
-        totalConfidence = totalConfidence + confidence
     if numberOfResults != 0:
+        totalConfidence = 0
+        for result in data:
+            confidence = result.alternatives[0].confidence
+            totalConfidence = totalConfidence + confidence
         averageConfidence = round(((totalConfidence/numberOfResults) * 100))
         return averageConfidence
-    else:
-        return 0
+    return "NA"
 
 def getText(data):
-    words = []
-    for result in data:
-        sentence = result.alternatives[0].transcript
-        words.extend(sentence.split())
-    if len(words) > 0:
+    if len(data) != 0:
+        words = []
+        for result in data:
+            sentence = result.alternatives[0].transcript
+            words.extend(sentence.split())
         words[0] = words[0].capitalize()
-    text = " ".join(words)
-    return text, words
+        text = " ".join(words)
+        return text, words
+    return "NA",[]
 
-def getCorrectText(text):
-    parser = GingerIt()
-    result = parser.parse(text)
-    corrected_sentence = result['result']
-    errors = len(result['corrections'])
-    return corrected_sentence, errors
+
+def getCorrectText(text, words):
+    if len(words) != 0:
+        parser = GingerIt()
+        result = parser.parse(text)
+        corrected_sentence = result['result']
+        errors = len(result['corrections'])
+        return corrected_sentence, errors
+    return "NA", 0
 
 def removePunctionation(corrected_sentence, errors):
     words = []
@@ -129,7 +131,28 @@ def getFillers():
     dBFS = final_audio.dBFS
     chunks = split_on_silence(final_audio,min_silence_len=500,silence_thresh=dBFS-16)
     return len(chunks) - 1 
-                
+
+def analysePace(pace):
+    if pace == "NA":
+        return["Not Applicable","Your voice wasn't picked up"]
+    elif pace < 2:
+        return ["Too Slow", "Your speaking pace is below the average"]
+    elif pace >=2 and pace<=3:
+        return ["Just Right","You are speaking at a good pace"]
+    elif pace >3:
+        return["Too Fast","Your speaking pace is above the average"] 
+
+def analyseConfidence(confidence):
+    if confidence == "NA":
+        return["Not Applicable","Your voice wasn't picked up"]            
+    elif confidence < 60:
+        return ['Needs Improvement',"Try speaking clearly next time"]
+    elif confidence >= 60 and confidence < 70:
+        return ['Moderate',"You could do better"]
+    elif confidence >=70 and confidence < 90:
+        return ['Good',"Your were clear and understandable"]
+    elif confidence >= 90:
+        return ['Excellent',"Keep it up"] 
             
             
 def audioProcess(data, inputLanguage, outputLanguage, gender):
@@ -143,7 +166,7 @@ def audioProcess(data, inputLanguage, outputLanguage, gender):
     text, words = getText(transcribed_audio.results)
     confidence = getConfidence(transcribed_audio.results)
     pace = getPace(transcribed_audio.results, words)
-    corrected_sentence, errors = getCorrectText(text)
+    corrected_sentence, errors = getCorrectText(text, words)
     corrected_sentence, errors = removePunctionation(corrected_sentence,errors)
     fillers = getFillers()
     getAudioFromText(corrected_sentence, outputLanguage, gender)
@@ -176,8 +199,11 @@ def audioProcess(data, inputLanguage, outputLanguage, gender):
 
 @app.route('/audioProcessing', methods = ['GET', 'POST'])
 def audio_endpoint(): 
+    
     data = request.json
-    result = audioProcess(data['audio'], data['inputLanguage'],data['outputLanguage'],data['gender'])
+    print(data)
+    settings = data['settings']
+    result = audioProcess(data['audio'], settings['inputAccent'],settings['outputAccent'],settings['gender'])
     return result
 
 if __name__ == '__main__':

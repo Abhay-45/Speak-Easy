@@ -16,7 +16,10 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
-  
+  // Audio Settings params
+  const [settings, setSettings] = useState({ gender : "MALE", inputAccent : "en-US", outputAccent : "en-US"})
+  const [audioAnalysis, setAudioAnalysis] = useState({status : null, originalText: null, correctedText: null, confidence: null, pace: null, errors: null, fillers: null})
+
 
   return (
     <div className="App">
@@ -25,9 +28,11 @@ function App() {
           setSettingsOpen={setSettingsOpen}
         />
       </div>
-      <Settings 
+      <Settings
         settingsOpen={settingsOpen}
         setSettingsOpen={setSettingsOpen}
+        setSettings={setSettings}
+        settings={settings}
       />
       <div style={{ paddingTop: 70 }}>
         <UploadAudioPage
@@ -38,15 +43,19 @@ function App() {
           file={file}
           setFile={setFile}
           setIsProcessing={setIsProcessing}
+          settings={settings}
+          setAudioAnalysis={setAudioAnalysis}
         />
         <OutPut
           outPutAudioUrl={outPutAudioUrl}
           isProcessing={isProcessing}
         />
-        <Analysis></Analysis>
+        <Analysis
+          audioAnalysis={audioAnalysis}
+        ></Analysis>
       </div>
-      
-      
+
+
 
     </div>
 

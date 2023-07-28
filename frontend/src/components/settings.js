@@ -2,34 +2,50 @@ import React, { useState } from 'react'
 import { Offcanvas, OffcanvasHeader, OffcanvasBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Input, Label, Col, Container } from 'reactstrap'
 import { transcribeLanguages, outputLanguages } from '../constants/languges'
 
-const Settings = ({ settingsOpen, setSettingsOpen }) => {
-
-    const [modal, setModal] = useState(false);
-    const [genderOption, setGenderOption] = useState("NEUTRAL");
-    const [accentOption, setAccentOption] = useState("en-US")
+const Settings = ({ settingsOpen, setSettingsOpen, setSettings, settings }) => {
 
     // Event handler for radio button selection
     const handleRadioChange = (event) => {
-        setGenderOption(event.target.value);
+        setSettings((prevSettings) => ({
+            ...prevSettings,
+            gender: event.target.value,
+        }));
     };
 
-    const handleAccentChange = (event) => {
-        setAccentOption(event.target.value)
+    const handleOutputAccentChange = (event) => {
+        setSettings((prevSettings) => ({
+            ...prevSettings,
+            outputAccent: event.target.value,
+        }));
+    }
+
+    const handleInputAccentChange = (event) => {
+        setSettings((prevSettings) => ({
+            ...prevSettings,
+            inputAccent: event.target.value,
+        }));
     }
 
     // Event handler for Save button click
     const handleSaveClick = () => {
-        console.log('Selected Gender:', genderOption);
-        console.log('Selected Accent:', accentOption);
-        setModal(!modal)
+        setSettingsOpen(false)
+        
     };
+
+    function getKeyByValue(object, value) {
+        for (const key in object) {
+            if (object[key] == value) {
+                return key;
+            }
+        }
+        return null; // Value not found
+    }
+
     return (
         <div>
             <Offcanvas isOpen={settingsOpen} direction='end'>
-
                 <OffcanvasHeader toggle={() => { setSettingsOpen(false) }}  >
                     <p style={{ paddingBottom: 0, marginBottom: 0, fontSize: 30 }}>Audio Settings</p>
-
                 </OffcanvasHeader>
                 <OffcanvasBody>
                     <hr style={{ marginTop: 0, paddingTop: 0 }} />
@@ -37,36 +53,21 @@ const Settings = ({ settingsOpen, setSettingsOpen }) => {
                         <h5 >Upload Audio Settings</h5>
                         <Form style={{ marginTop: "1rem" }}>
                             <FormGroup>
-                                <Label for="exampleSelect">
+                                <Label for="inputAccent">
                                     Accent
                                 </Label>
                                 <Input
-                                    id="exampleSelect"
+                                    id="inputAccent"
                                     name="select"
                                     type="select"
-                                    onChange={handleAccentChange}
+                                    onChange={handleInputAccentChange}
                                 >
-                                    <option value="en-US">English (United States)</option>
+                                    <option value={settings.inputAccent}>{getKeyByValue(transcribeLanguages, settings.inputAccent)}</option>
                                     {Object.entries(transcribeLanguages).map(([language, code]) => (
                                         <option key={code} value={code}>
                                             {language}
                                         </option>
                                     ))}
-                                    {/* <option value="option-1">
-                                        1
-                                    </option >
-                                    <option value="option-2">
-                                        2
-                                    </option>
-                                    <option value="option-3">
-                                        3
-                                    </option>
-                                    <option value="option-4">
-                                        4
-                                    </option>
-                                    <option value="option-5">
-                                        5
-                                    </option> */}
                                 </Input>
                             </FormGroup>
                         </Form>
@@ -89,8 +90,7 @@ const Settings = ({ settingsOpen, setSettingsOpen }) => {
                                             type="radio"
                                             value="MALE"
                                             onChange={handleRadioChange}
-                                            defaultChecked
-                                            
+                                            defaultChecked={settings.gender === "MALE"}
                                         />
                                         {' '}
                                         <Label check>
@@ -103,6 +103,7 @@ const Settings = ({ settingsOpen, setSettingsOpen }) => {
                                             type="radio"
                                             value="FEMALE"
                                             onChange={handleRadioChange}
+                                            defaultChecked={settings.gender === "FEMALE"}
                                         />
                                         {' '}
                                         <Label check>
@@ -121,9 +122,9 @@ const Settings = ({ settingsOpen, setSettingsOpen }) => {
                                     id="exampleSelect"
                                     name="select"
                                     type="select"
-                                    onChange={handleAccentChange}
+                                    onChange={handleOutputAccentChange}
                                 >
-                                    <option value="en-US">English (United States)</option>
+                                    <option value={settings.outputAccent}>{getKeyByValue(outputLanguages, settings.outputAccent)}</option>
                                     {Object.entries(outputLanguages).map(([language, code]) => (
                                         <option key={code} value={code}>
                                             {language}

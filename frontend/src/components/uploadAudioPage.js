@@ -6,7 +6,7 @@ import RecordAudio from './recordAudio';
 import RadioOptions from './radioOptions';
 
 
-function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, setAudioPreviewUrl, file, setFile, setIsProcessing }) {
+function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, setAudioPreviewUrl, file, setFile, setIsProcessing, settings, setAudioAnalysis }) {
 
     //const [file, setFile] = React.useState(null)
     const fileInput = React.useRef();
@@ -57,7 +57,8 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
                 audio: window.sessionStorage.getItem("input_audio"),
                 inputLanguage: "en-GB",
                 outputLanguage: "en-IN",
-                gender: "Male"
+                gender: "Male",
+                settings: settings
             })
         })
             .then((Response) => Response.json())
@@ -73,6 +74,19 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
         console.log(Result)
         setOutPutAudioUrl("data:audio/mpeg;base64," + Result.output_audio)
         setpace(Result['pace'])
+
+        setAudioAnalysis((prevAnalysis)=>({
+            ...prevAnalysis,
+            status: Result['status'],
+            originalText: Result['original_text'],
+            correctedText: Result['corrected_text'],
+            confidence: Result['confidence'],
+            pace: Result['pace'],
+            errors : Result['errors'],
+            fillers : Result['fillers']
+
+        }))
+
 
     }
 

@@ -14,14 +14,14 @@ const transcribeLanguages = {
     "English (South Africa)": "en-ZA",
     "English (Tanzania)": "en-TZ",
     "English (United Kingdom)": "en-GB",
-    // "English (United States)": "en-US"
+    "English (United States)": "en-US"
 }
 
 const outputLanguages = {
     "English (Australia)": "en-AU",
     "English (India)": "en-IN",
     "English (United Kingdom)": "en-GB",
-    // "English (United States)": "en-US"
+    "English (United States)": "en-US"
 }
 
 export {transcribeLanguages, outputLanguages}
