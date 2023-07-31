@@ -9,6 +9,13 @@ from pydub import AudioSegment
 from pydub.silence import split_on_silence
 from google.cloud import texttospeech_v1
 
+green = "#40BF58"
+red = "#FF0000"
+yellow = "#FEA601"
+blue = "#2386FF"
+black = "#000000"
+
+
 relative_path = "Credentials/googleCloudCredentials.json"
 
 from google.cloud import speech
@@ -76,7 +83,7 @@ def getPace(data,words):
     if len(data) != 0:
         lastResult = data[len(data) - 1]
         totalTime = lastResult.result_end_time.seconds
-        return round(len(words)/totalTime)
+        return round(len(words)/totalTime, 1)
     return "NA"
     
 
@@ -110,50 +117,84 @@ def getCorrectText(text, words):
         corrected_sentence = result['result']
         errors = len(result['corrections'])
         return corrected_sentence, errors
-    return "NA", 0
+    return "NA", "NA"
 
 def removePunctionation(corrected_sentence, errors):
-    words = []
-    realErrors = errors
-    for letter in corrected_sentence:
-        if letter in string.punctuation:
-            realErrors = realErrors - 1
-        else:
-            words.append(letter)
-    if realErrors < 0:
-        realErrors = 0
+    if errors != "NA":
+        words = []
+        realErrors = errors
+        for letter in corrected_sentence:
+            if letter in string.punctuation:
+                realErrors = realErrors - 1
+            else:
+                words.append(letter)
+        if realErrors < 0:
+            realErrors = 0
 
-    corrected_sentence = "".join(words)
-    return corrected_sentence, realErrors
+        corrected_sentence = "".join(words)
+        return corrected_sentence, realErrors
+    return "NA","NA"
 
-def getFillers():
-    final_audio = AudioSegment.from_wav("audio.wav")
-    dBFS = final_audio.dBFS
-    chunks = split_on_silence(final_audio,min_silence_len=500,silence_thresh=dBFS-16)
-    return len(chunks) - 1 
+def getFillers(words):
+    if len(words) != 0:
+        final_audio = AudioSegment.from_wav("audio.wav")
+        dBFS = final_audio.dBFS
+        chunks = split_on_silence(final_audio,min_silence_len=500,silence_thresh=dBFS-16)
+        return len(chunks) - 1 
+    return "NA"
 
 def analysePace(pace):
     if pace == "NA":
-        return["Not Applicable","Your voice wasn't picked up"]
+        return["Not Applicable","Your voice wasn't picked up", black]
     elif pace < 2:
-        return ["Too Slow", "Your speaking pace is below the average"]
-    elif pace >=2 and pace<=3:
-        return ["Just Right","You are speaking at a good pace"]
+        return ["Too Slow", "Your speaking pace is below the average", red]
+    elif pace<=3:
+        return ["Just Right","You are speaking at a good pace", yellow]
     elif pace >3:
-        return["Too Fast","Your speaking pace is above the average"] 
+        return["Too Fast","Your speaking pace is above the average", green] 
 
 def analyseConfidence(confidence):
     if confidence == "NA":
-        return["Not Applicable","Your voice wasn't picked up"]            
+        return["Not Applicable","Your voice wasn't picked up", black]            
     elif confidence < 60:
-        return ['Needs Improvement',"Try speaking clearly next time"]
-    elif confidence >= 60 and confidence < 70:
-        return ['Moderate',"You could do better"]
-    elif confidence >=70 and confidence < 90:
-        return ['Good',"Your were clear and understandable"]
+        return ['Needs Improvement',"Try speaking clearly next time", red]
+    elif confidence < 70:
+        return ['Moderate',"You could do better", yellow]
+    elif confidence < 90:
+        return ['Good',"Your were clear and understandable", blue]
     elif confidence >= 90:
-        return ['Excellent',"Keep it up"] 
-            
+        return ['Excellent',"Keep it up", green] 
+
+def analyseErrors(errors, words):
+    if errors == "NA":
+        return ["Not Applicable","Your voice wasn't picked up", black]
+    percentage = round((errors/len(words)) * 100)
+    if percentage == 0:
+        return ["Perfect","No errors Made - "+ str(100- percentage) + "% "+"accuracy", green]
+    elif percentage < 10:
+        return ["Very good","Mostly correct - " + str(100 - percentage) + "% "+"accuracy", blue]
+    elif percentage < 30:
+        return ["Average","Some errors made - "+ str(100 - percentage) + "% "+"accuracy", yellow]
+    else:
+        return ["Needs Improvement","Many errors made - "+ str(100 - percentage) + "% "+"accuracy", red]
+
+
+def analyseFillers(fillers, words):
+    if fillers == "NA":
+        return ["Not Applicable","Your voice wasn't picked up", black]
+    percentage = round((fillers/len(words)) * 100)
+    if percentage == 0:
+        return ["Perfect","No pauses found - " + str(100 - percentage) + "% "+"fluency", green]
+    elif percentage < 10:
+        return ["Very good","Mostly fluent - " + str(100 - percentage) + "% "+"fluency", blue]
+    elif percentage < 30:
+        return ["Average","Some pauses found - " + str(100 - percentage) + "% "+"fluency", yellow]
+    else:
+        return ["Needs Improvement","Many pauses found - "+ str(100 - percentage) + "% "+"fluency", red]
+
+
+
+    
             
 def audioProcess(data, inputLanguage, outputLanguage, gender):
     file = open("audio.mp3", "wb")
@@ -168,12 +209,16 @@ def audioProcess(data, inputLanguage, outputLanguage, gender):
     pace = getPace(transcribed_audio.results, words)
     corrected_sentence, errors = getCorrectText(text, words)
     corrected_sentence, errors = removePunctionation(corrected_sentence,errors)
-    fillers = getFillers()
+    fillers = getFillers(words)
+    paceAnalysis = analysePace(pace)
+    confidenceAnalysis = analyseConfidence(confidence)
+    errorsAnalysis = analyseErrors(errors, words)
+    fillersAnalysis = analyseFillers(fillers, words)
     getAudioFromText(corrected_sentence, outputLanguage, gender)
     print("Transcribed Auto", transcribed_audio)
     print("Original Text:   ", text)
     print("Confidence:   ", confidence)
-    print("Pace   ", pace)
+    print("Pace   " + str(pace) + "word/sec")
     print("Corrected Sentence:   ", corrected_sentence)
     print("Errors:   ", errors)
     print("Long Pauses: ", fillers)
@@ -193,7 +238,11 @@ def audioProcess(data, inputLanguage, outputLanguage, gender):
             "pace": pace,
             "errors": errors,
             "fillers": fillers,
-            "output_audio": output_audio_url
+            "output_audio": output_audio_url,
+            "paceAnalysis": paceAnalysis,
+            "confidenceAnalysis": confidenceAnalysis,
+            "errorsAnalysis": errorsAnalysis,
+            "fillersAnalysis": fillersAnalysis
             }
 
 

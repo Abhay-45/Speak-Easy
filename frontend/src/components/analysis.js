@@ -4,6 +4,7 @@ import Cards from './cards'
 
 const Analysis = ({audioAnalysis}) => {
   const [gridColumns, setGridColumns] = useState(3);
+  // console.log("paceDescription :", audioAnalysis.paceAnalysis[0])
 
   // Fix this for large screens
   useEffect(() => {
@@ -58,12 +59,34 @@ const Analysis = ({audioAnalysis}) => {
         padding: 50,
         
       }}>
-        <Cards title="Pace" score={audioAnalysis.pace} description="Very good"> </Cards>
-        <Cards title="Confidence" score={audioAnalysis.confidence} description="Very good"> </Cards>
-        <Cards title="Errors" score={audioAnalysis.errors} description="Very good"> </Cards>
-        <Cards title="Fillers & Long Pauses" score={audioAnalysis.fillers} description="Very good"> </Cards>
-        {/* <Cards title="Pace" score="85" description="Very good"> </Cards>
-        <Cards title="Pace" score="85" description="Very good"> </Cards> */}
+        <Cards 
+          title="Pace" 
+          score={audioAnalysis.pace} 
+          comment={audioAnalysis.paceAnalysis[0]} 
+          description={audioAnalysis.paceAnalysis[1]} 
+          color={audioAnalysis.paceAnalysis[2]}
+        /> 
+        <Cards 
+          title="Confidence"  
+          score={audioAnalysis.confidence} 
+          comment={audioAnalysis.confidenceAnalysis[0]} 
+          description={audioAnalysis.confidenceAnalysis[1]}
+          color={audioAnalysis.confidenceAnalysis[2]}
+        /> 
+        <Cards 
+          title="Errors" 
+          score={audioAnalysis.errors} 
+          comment={audioAnalysis.errorsAnalysis[0]} 
+          description={audioAnalysis.errorsAnalysis[1]}
+          color={audioAnalysis.errorsAnalysis[2]}
+        />
+        <Cards 
+          title="Fillers & Long Pauses" 
+          score={audioAnalysis.fillers} 
+          comment={audioAnalysis.fillersAnalysis[0]} 
+          description={audioAnalysis.fillersAnalysis[1]}
+          color={audioAnalysis.fillersAnalysis[2]}
+        /> 
       </div>
     </div>
   )

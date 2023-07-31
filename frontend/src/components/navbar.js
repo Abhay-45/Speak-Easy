@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Button
 } from 'reactstrap';
+import {Link} from 'react-router-dom'
 import COLORS from '../constants/theme';
 
 const NavBar = ({setSettingsOpen}) => {
@@ -27,8 +28,8 @@ const NavBar = ({setSettingsOpen}) => {
       }}
     >
       <div>
-        <a
-          href="#"
+        <Link
+          to='/'
           style={{
             color: 'white',
             textDecoration: 'none',
@@ -37,9 +38,25 @@ const NavBar = ({setSettingsOpen}) => {
           }}
         >
           Logo
-        </a>
+        </Link>
       </div>
-      <div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: "200px"
+      }}>
+        <Link 
+          to="/try-live"
+          style={{
+            color: 'white',
+            textDecoration: 'none',
+            fontSize: '16px',
+            color: "white",
+            fontWeight: '400'
+          }}>
+            Try it out
+        </Link>
         <Button
           style={{
             color: 'white',

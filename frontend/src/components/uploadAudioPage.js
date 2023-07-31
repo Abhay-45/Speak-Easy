@@ -47,6 +47,11 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
 
     const handleProcess = () => {
         setIsProcessing(true);
+        // Scroll to the output section
+        const outputSectionElement = document.getElementById("outputSection");
+        if (outputSectionElement) {
+            outputSectionElement.scrollIntoView({ behavior: "smooth" });
+        }
         fetch('http://127.0.0.1:5000/audioProcessing', {
             method: 'POST',
             headers: {
@@ -75,15 +80,19 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
         setOutPutAudioUrl("data:audio/mpeg;base64," + Result.output_audio)
         setpace(Result['pace'])
 
-        setAudioAnalysis((prevAnalysis)=>({
+        setAudioAnalysis((prevAnalysis) => ({
             ...prevAnalysis,
             status: Result['status'],
             originalText: Result['original_text'],
             correctedText: Result['corrected_text'],
             confidence: Result['confidence'],
             pace: Result['pace'],
-            errors : Result['errors'],
-            fillers : Result['fillers']
+            errors: Result['errors'],
+            fillers: Result['fillers'],
+            paceAnalysis: Result['paceAnalysis'],
+            confidenceAnalysis: Result['confidenceAnalysis'],
+            errorsAnalysis: Result['errorsAnalysis'],
+            fillersAnalysis: Result['fillersAnalysis']
 
         }))
 
@@ -112,12 +121,16 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
                             </Button>
                         ) : (
                             <div style={{ padding: 20 }}>
-                                <Button className="btn-round" size='lg' color="secondary" onClick={handleClick} style={{ marginRight: "40px",  paddingLeft: 30,
-                            paddingRight: 30 }}>
+                                <Button className="btn-round" size='lg' color="secondary" onClick={handleClick} style={{
+                                    marginRight: "40px", paddingLeft: 30,
+                                    paddingRight: 30
+                                }}>
                                     Change
                                 </Button>
-                                <Button color="danger" size='lg' className="btn-round" onClick={handleRemove} style={{ paddingLeft: 30,
-                            paddingRight: 30}}>
+                                <Button color="danger" size='lg' className="btn-round" onClick={handleRemove} style={{
+                                    paddingLeft: 30,
+                                    paddingRight: 30
+                                }}>
                                     <i className="fa fa-times" /> Remove
                                 </Button>
                             </div>
@@ -140,11 +153,13 @@ function UploadAudioPage({ outPutAudioUrl, setOutPutAudioUrl, audioPreviewUrl, s
 
             <Container>
                 {file !== null && (
-                    <Button className="btn-round" size='lg' onClick={handleProcess} 
-                        style={{ margin: "30px", 
+                    <Button className="btn-round" size='lg' onClick={handleProcess}
+                        style={{
+                            margin: "30px",
                             backgroundColor: COLORS.TURQUOISE,
                             paddingLeft: 30,
-                            paddingRight: 30 }}>
+                            paddingRight: 30
+                        }}>
                         Process
                     </Button>
                 )}
