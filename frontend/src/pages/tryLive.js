@@ -5,15 +5,11 @@ import OutPut from '../components/outPut';
 
 import Settings from '../components/settings';
 
-const TryLive = ({settingsOpen, setSettingsOpen}) => {
+const TryLive = ({settingsOpen, setSettingsOpen, settings, setSettings}) => {
     const [outPutAudioUrl, setOutPutAudioUrl] = useState(null)
     const [audioPreviewUrl, setAudioPreviewUrl] = React.useState(null);
     const [file, setFile] = React.useState(null)
     const [isProcessing, setIsProcessing] = useState(false)
-
-
-    // Audio Settings params
-    const [settings, setSettings] = useState({ gender: "MALE", inputAccent: "en-US", outputAccent: "en-US" })
     const [audioAnalysis, setAudioAnalysis] = useState({ status: null, originalText: "NA", correctedText: "NA", confidence: 0, pace: 0, errors: 0, fillers: 0, paceAnalysis: ["NA", "NA"], confidenceAnalysis: ["NA", "NA"], errorsAnalysis: ["NA", "NA"], fillersAnalysis: ["NA", "NA"] })
 
 

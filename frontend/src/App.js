@@ -7,6 +7,7 @@ import NavBar from './components/navbar';
 
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settings, setSettings] = useState({ gender: "MALE", inputAccent: "en-US", outputAccent: "en-US" })
 
   return (
     <Router>
@@ -19,9 +20,18 @@ function App() {
             element={<TryLive 
               setSettingsOpen={setSettingsOpen}
               settingsOpen={settingsOpen} 
+              settings={settings}
+              setSettings={setSettings}
               />} 
           />
-          <Route path="/" component={Home} />
+          <Route path="/" 
+          element={<Home
+            setSettingsOpen={setSettingsOpen}
+            settingsOpen={settingsOpen} 
+            settings={settings}
+            setSettings={setSettings}
+          
+          />} />
         </Routes>
       </div>
     </Router>
